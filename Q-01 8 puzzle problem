@@ -1,0 +1,70 @@
+import heapq
+
+class Node:
+    def __init__(self, state, parent=None, move='', depth=0):
+        self.state = state
+        self.parent = parent
+        self.move = move
+        self.depth = depth
+        self.cost = depth + self.heuristic()
+
+    def heuristic(self):
+        goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+        return sum(abs((s % 3 - g % 3) + (s // 3 - g // 3))
+                   for s, g in zip([self.state.index(i) for i in range(1, 9)],
+                                   [goal.index(i) for i in range(1, 9)]))
+
+    def __lt__(self, other):
+        return self.cost < other.cost
+
+def neighbors(state):
+    idx = state.index(0)
+    row, col = divmod(idx, 3)
+    moves = {'Up': -3, 'Down': 3, 'Left': -1, 'Right': 1}
+    valid = []
+
+    for move, delta in moves.items():
+        new_idx = idx + delta
+        if move == 'Left' and col == 0 or move == 'Right' and col == 2:
+            continue
+        if 0 <= new_idx < 9:
+            new_state = list(state)
+            new_state[idx], new_state[new_idx] = new_state[new_idx], new_state[idx]
+            valid.append((tuple(new_state), move))
+    return valid
+
+def solve(start):
+    goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+    heap = [Node(start)]
+    seen = set()
+
+    while heap:
+        node = heapq.heappop(heap)
+        if node.state == goal:
+            return path(node)
+        seen.add(node.state)
+        for state, move in neighbors(node.state):
+            if state not in seen:
+                heapq.heappush(heap, Node(state, node, move, node.depth + 1))
+    return None
+
+def path(node):
+    moves = []
+    while node.parent:
+        moves.append(node.move)
+        node = node.parent
+    return moves[::-1]
+
+start = (1, 2, 3,
+         4, 0, 5,
+         6, 7, 8)
+
+print("Initial State:")
+for i in range(0, 9, 3):
+    print(start[i:i+3])
+solution = solve(start)
+if solution:
+    print("\nSolved in", len(solution), "moves:")
+    print(" -> ".join(solution))
+else:
+    print("No solution found.")
