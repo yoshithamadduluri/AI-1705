@@ -1,0 +1,36 @@
+from collections import deque
+
+def is_valid(m, c):
+    return 0 <= m <= 3 and 0 <= c <= 3 and (m == 0 or m >= c)
+
+def bfs():
+    start = (3, 3, 1)  # (M_left, C_left, boat)
+    goal = (0, 0, 0)
+    visited = set()
+    queue = deque([(start, [])])
+
+    moves = [(1,0), (2,0), (0,1), (0,2), (1,1)]
+
+    while queue:
+        (m, c, b), path = queue.popleft()
+        if (m, c, b) in visited:
+            continue
+        visited.add((m, c, b))
+
+        if (m, c, b) == goal:
+            for step in path:
+                print(step)
+            print("Solved!")
+            return
+
+        for dm, dc in moves:
+            if b == 1:
+                new = (m - dm, c - dc, 0)
+            else:
+                new = (m + dm, c + dc, 1)
+
+            m2, c2, _ = new
+            if is_valid(m2, c2) and is_valid(3 - m2, 3 - c2):
+                queue.append((new, path + [new]))
+
+bfs()
