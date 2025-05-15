@@ -1,0 +1,31 @@
+from collections import deque
+
+def water_jug_bfs():
+    visited = set()
+    queue = deque()
+    queue.append((0, 0))  # (jug1, jug2)
+
+    while queue:
+        a, b = queue.popleft()
+        if (a, b) in visited:
+            continue
+        visited.add((a, b))
+        print(f"Jug1: {a}L, Jug2: {b}L")
+
+        if a == 4 or b == 4:
+            print("Solution found!")
+            return
+
+        queue.append((5, b))
+        queue.append((0, b))
+
+        queue.append((a, 3))
+        queue.append((a, 0))
+
+        transfer = min(a, 3 - b)
+        queue.append((a - transfer, b + transfer))
+
+        transfer = min(b, 5 - a)
+        queue.append((a + transfer, b - transfer))
+
+water_jug_bfs()
